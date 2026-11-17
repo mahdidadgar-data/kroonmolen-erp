@@ -29,6 +29,13 @@
       "when": 1794925961659,
       "tag": "0003_revoke_anon_has_role",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794927045362,
+      "tag": "0004_current_user_role_checks",
+      "breakpoints": true
     }
   ]
 }

@@ -420,13 +420,9 @@ export type Database = {
       }
       admin_revoke_access: { Args: { _user_id: string }; Returns: undefined }
       has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
       }
-      is_staff: { Args: { _user_id: string }; Returns: boolean }
       reset_demo_data: { Args: never; Returns: undefined }
     }
     Enums: {

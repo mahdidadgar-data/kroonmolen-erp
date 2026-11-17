@@ -1,0 +1,3 @@
+- [x] Bind RLS role checks to the current account and remove ID-based checks.
+- [x] Verify permissions, admin Users, API tests and unchanged demo-reset safeguards.
+- [x] Rerun basic security scan; commit the fix.
