@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { Loader2, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 
@@ -20,7 +20,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { myRoleQuery } from "@/lib/queries";
+import { adminUsersQuery, myRoleQuery } from "@/lib/queries";
+import { formatDate } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   loader: ({ context }) => context.queryClient.ensureQueryData(myRoleQuery),
@@ -97,6 +98,76 @@ function SettingsPage() {
           )}
         </Panel>
       </div>
+      {isAdmin && <UsersPanel currentUserId={user.id} />}
     </>
+  );
+}
+
+function UsersPanel({ currentUserId }: { currentUserId: string }) {
+  const { data: users = [], isLoading, error } = useQuery(adminUsersQuery);
+  const queryClient = useQueryClient();
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  async function act(fn: "admin_approve_viewer" | "admin_revoke_access", id: string, ok: string) {
+    setBusyId(id);
+    const { error } = await supabase.rpc(fn, { _user_id: id });
+    setBusyId(null);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: adminUsersQuery.queryKey });
+    toast.success(ok);
+  }
+
+  const label = { admin: "Admin", viewer: "Viewer", pending: "Pending" } as Record<string, string>;
+  const variant = { admin: "success", viewer: "neutral", pending: "warning" } as const;
+
+  return (
+    <Panel title="Users" className="mt-4">
+      {isLoading ? (
+        <p className="p-4 text-sm text-muted-foreground">Loading users…</p>
+      ) : error ? (
+        <p className="p-4 text-sm text-destructive">{error.message}</p>
+      ) : (
+        <table className="w-full text-sm">
+          <thead className="border-b text-left text-xs text-muted-foreground">
+            <tr>
+              <th className="px-4 py-2 font-medium">Email</th>
+              <th className="px-4 py-2 font-medium">Signed up</th>
+              <th className="px-4 py-2 font-medium">Access</th>
+              <th className="px-4 py-2" />
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.user_id} className="border-b last:border-0">
+                <td className="px-4 py-2">
+                  {u.email}
+                  {!u.email_confirmed && <span className="ml-2 text-xs text-muted-foreground">(email not confirmed)</span>}
+                </td>
+                <td className="px-4 py-2 text-muted-foreground">{formatDate(u.created_at)}</td>
+                <td className="px-4 py-2">
+                  <Badge variant={variant[u.role as keyof typeof variant] ?? "neutral"}>{label[u.role] ?? u.role}</Badge>
+                </td>
+                <td className="px-4 py-2 text-right">
+                  {u.role === "pending" && (
+                    <Button size="sm" disabled={busyId === u.user_id} onClick={() => act("admin_approve_viewer", u.user_id, `${u.email} approved as viewer`)}>
+                      Approve as viewer
+                    </Button>
+                  )}
+                  {u.role === "viewer" && u.user_id !== currentUserId && (
+                    <Button size="sm" variant="outline" disabled={busyId === u.user_id} onClick={() => act("admin_revoke_access", u.user_id, `Access revoked for ${u.email}`)}>
+                      Revoke access
+                    </Button>
+                  )}
+                  {u.role === "admin" && <span className="text-xs text-muted-foreground">Admin rights can't be changed here</span>}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </Panel>
   );
 }

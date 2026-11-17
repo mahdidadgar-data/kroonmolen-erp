@@ -407,6 +407,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_viewer: { Args: { _user_id: string }; Returns: undefined }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          email_confirmed: boolean
+          role: string
+          user_id: string
+        }[]
+      }
+      admin_revoke_access: { Args: { _user_id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -414,6 +426,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       reset_demo_data: { Args: never; Returns: undefined }
     }
     Enums: {

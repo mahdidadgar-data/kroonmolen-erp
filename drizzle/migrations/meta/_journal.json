@@ -15,6 +15,13 @@
       "when": 1794918281551,
       "tag": "0001_roles_and_demo_reset",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794925845554,
+      "tag": "0002_pending_users_and_role_reads",
+      "breakpoints": true
     }
   ]
 }

@@ -109,8 +109,15 @@ export const myRoleQuery = queryOptions({
   queryKey: ["my-role"],
   queryFn: async () => {
     const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return "viewer" as const;
+    if (!u.user) return "pending" as const;
     const rows = check(await supabase.from("user_roles").select("role").eq("user_id", u.user.id));
-    return rows.some((r) => r.role === "admin") ? ("admin" as const) : ("viewer" as const);
+    if (rows.some((r) => r.role === "admin")) return "admin" as const;
+    if (rows.some((r) => r.role === "viewer")) return "viewer" as const;
+    return "pending" as const;
   },
+});
+
+export const adminUsersQuery = queryOptions({
+  queryKey: ["admin-users"],
+  queryFn: async () => check(await supabase.rpc("admin_list_users")) ?? [],
 });
