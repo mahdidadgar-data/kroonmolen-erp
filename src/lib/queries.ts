@@ -108,3 +108,13 @@ export function orderTotals(lines: { quantity_tonnes: number; line_total: number
     { tonnes: 0, amount: 0 },
   );
 }
+
+export const myRoleQuery = queryOptions({
+  queryKey: ["my-role"],
+  queryFn: async () => {
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) return "viewer" as const;
+    const rows = check(await supabase.from("user_roles").select("role").eq("user_id", u.user.id));
+    return rows.some((r) => r.role === "admin") ? ("admin" as const) : ("viewer" as const);
+  },
+});

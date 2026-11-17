@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { orderDetailQuery } from "@/lib/queries";
+import { useIsAdmin } from "@/hooks/use-role";
 import { COUNTRY, INVOICE_STATUS, ORDER_STATUS, ORDER_STATUS_FLOW, PACKAGING, SHIPMENT_STATUS } from "@/lib/status";
 import { formatDate, formatDateTime, formatEUR, formatTonnes } from "@/lib/format";
 import { effectiveInvoiceStatus, isOrderLate, todayISO } from "@/lib/erp-rules";
@@ -47,6 +48,7 @@ function OrderDetail() {
   const order = data.order!;
   const today = todayISO();
   const update = useUpdate();
+  const isAdmin = useIsAdmin();
   const [nextStatus, setNextStatus] = useState(order.status);
 
   const totalTonnes = data.lines.reduce((s, l) => s + Number(l.quantity_tonnes), 0);
@@ -85,6 +87,7 @@ function OrderDetail() {
           </>
         }
         actions={
+          isAdmin ? (
           <>
             <Select value={nextStatus} onValueChange={setNextStatus}>
               <SelectTrigger className="h-8 w-44 text-sm" aria-label="New status">
@@ -100,6 +103,9 @@ function OrderDetail() {
               Update status
             </Button>
           </>
+          ) : (
+            <span className="text-xs text-muted-foreground">View only</span>
+          )
         }
       />
 
@@ -161,6 +167,7 @@ function OrderDetail() {
                       {s.actual_date && ` · Actual ${formatDate(s.actual_date)}`}
                     </span>
                     <div className="ml-auto flex items-center gap-2">
+                      {!isAdmin ? <StatusBadge kind="shipment" status={s.status} /> : (
                       <Select
                         value={s.status}
                         onValueChange={(v) =>
@@ -186,6 +193,7 @@ function OrderDetail() {
                           ))}
                         </SelectContent>
                       </Select>
+                      )}
                     </div>
                     {s.delay_reason && (
                       <p className="w-full rounded-md bg-danger-soft px-2.5 py-1.5 text-xs text-danger">
@@ -214,7 +222,7 @@ function OrderDetail() {
                       <Field label={`Incl. ${Number(inv.vat_rate)}% VAT`}>{formatEUR(Number(inv.amount_incl_vat))}</Field>
                       <div className="ml-auto flex items-center gap-2">
                         <StatusBadge kind="invoice" status={eff} />
-                        {eff !== "paid" && (
+                        {isAdmin && eff !== "paid" && (
                           <Button
                             size="sm"
                             variant="outline"

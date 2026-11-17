@@ -4,6 +4,7 @@ import {
   FileText,
   LayoutDashboard,
   Package,
+  Settings,
   ShoppingCart,
   Truck,
   Users,
@@ -42,6 +43,10 @@ const groups = [
       { title: "Shipments", url: "/shipments", icon: Truck },
       { title: "Invoices", url: "/invoices", icon: FileText },
     ],
+  },
+  {
+    label: "System",
+    items: [{ title: "Settings", url: "/settings", icon: Settings }],
   },
 ] as const;
 

@@ -39,3 +39,5 @@ use the editor.
 - List pages keep search, sort and filters in the URL via `listSearch()` and render with the shared `DataTable`. Why: shareable, linkable filtered views (dashboard links into them).
 - Status labels and badge colours come from `src/lib/status.ts` and badge variants in `src/components/ui/badge.tsx`. Why: consistent colours across modules.
 - Records use human-readable text primary keys (CUST-, PRD-, SO-, SHP-, INV-). Why: stable IDs for a future API.
+- Roles live in `public.user_roles` (enum viewer/admin) checked by `public.has_role()`; a trigger on sign-up assigns viewer, and UPDATE policies require admin. `useIsAdmin()` only hides UI. Why: permissions are enforced in the database.
+- Demo reset is the admin-only `public.reset_demo_data()` RPC, copying a private `demo_seed` snapshot (anchored 2026-11-17) with every date shifted to today; `app.seeding` suppresses the order-created trigger. Why: same exceptions, always relative to today.
