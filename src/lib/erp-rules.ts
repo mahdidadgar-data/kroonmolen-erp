@@ -59,6 +59,17 @@ export function isShippingToday(
   return shipment.planned_date === today && (shipment.status === "planned" || shipment.status === "loaded");
 }
 
+/** Total tonnes and amount (excl. VAT) of an order's lines. */
+export function orderTotals(lines: { quantity_tonnes: number; line_total: number | null }[]) {
+  return lines.reduce(
+    (acc, l) => ({
+      tonnes: acc.tonnes + Number(l.quantity_tonnes),
+      amount: acc.amount + Number(l.line_total ?? 0),
+    }),
+    { tonnes: 0, amount: 0 },
+  );
+}
+
 export function stockStatus(quantity: number, reorderLevel: number): StockStatus {
   if (quantity <= 0) return "out_of_stock";
   if (quantity <= reorderLevel) return "low";

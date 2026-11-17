@@ -1,0 +1,433 @@
+openapi: 3.0.3
+info:
+  title: Kroonmolen ERP API
+  version: 1.0.0
+  description: >
+    Read-only API for external agents to query Kroonmolen ERP data (orders, customers,
+    stock, shipments, invoices). Every request needs "Authorization: Bearer <ERP_API_KEY>".
+    Only GET is supported; other methods return 405. Unknown and malformed IDs both return
+    the same 404 body so the API does not reveal which IDs exist. Dates are ISO dates
+    (YYYY-MM-DD); "today" is evaluated in the Europe/Amsterdam time zone. Amounts are EUR.
+servers:
+  # Replace with your published Lovable URL (or custom domain). In Salesforce, the base URL
+  # comes from the Named Credential, and the paths below are appended to it.
+  - url: https://your-app.lovable.app
+security:
+  - bearerAuth: []
+tags:
+  - name: Orders
+    description: Sales orders with lines, shipments and invoices, and a customer's order list.
+  - name: Products
+    description: Stock per warehouse and stock status.
+  - name: Shipments
+    description: Shipment status, planned/actual date and delay reason.
+  - name: Invoices
+    description: Invoice amounts, due date and status (overdue derived at read time).
+
+paths:
+  /api/v1/orders/{orderId}:
+    get:
+      tags: [Orders]
+      operationId: getOrder
+      summary: Get a sales order with its lines, shipments and invoices
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Sales order ID, e.g. SO-24001.
+          schema:
+            type: string
+            pattern: "^SO-[0-9]{1,10}$"
+            example: SO-24001
+      responses:
+        "200":
+          description: The sales order.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /api/v1/customers/{customerId}/orders:
+    get:
+      tags: [Orders]
+      operationId: listCustomerOrders
+      summary: List a customer's orders (newest first)
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          description: Customer ID, e.g. CUST-1001.
+          schema:
+            type: string
+            pattern: "^CUST-[0-9]{1,10}$"
+            example: CUST-1001
+      responses:
+        "200":
+          description: The customer's orders. An existing customer without orders returns an empty list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerOrders"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /api/v1/products/{productId}/stock:
+    get:
+      tags: [Products]
+      operationId: getProductStock
+      summary: Get stock per warehouse and stock status for a product
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: Product ID (the product SKU), e.g. PRD-2001.
+          schema:
+            type: string
+            pattern: "^PRD-[0-9]{1,10}$"
+            example: PRD-2001
+      responses:
+        "200":
+          description: Stock for the product.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductStock"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /api/v1/shipments/{shipmentId}:
+    get:
+      tags: [Shipments]
+      operationId: getShipment
+      summary: Get a shipment's status, planned/actual date and delay reason
+      parameters:
+        - name: shipmentId
+          in: path
+          required: true
+          description: Shipment ID, e.g. SHP-30001.
+          schema:
+            type: string
+            pattern: "^SHP-[0-9]{1,10}$"
+            example: SHP-30001
+      responses:
+        "200":
+          description: The shipment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shipment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /api/v1/invoices/{invoiceId}:
+    get:
+      tags: [Invoices]
+      operationId: getInvoice
+      summary: Get an invoice's amounts, due date and status (overdue is derived)
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          description: Invoice ID, e.g. INV-50001.
+          schema:
+            type: string
+            pattern: "^INV-[0-9]{1,10}$"
+            example: INV-50001
+      responses:
+        "200":
+          description: The invoice.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invoice"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'The value of ERP_API_KEY, sent as "Authorization: Bearer <key>".'
+
+  responses:
+    Unauthorized:
+      description: Missing or wrong API key.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: unauthorized
+    NotFound:
+      description: Unknown or malformed ID (identical response for both).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: not_found
+    ServerError:
+      description: Unexpected server error. No details are returned.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error: server_error
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Error code.
+          enum: [unauthorized, not_found, method_not_allowed, server_error]
+
+    Order:
+      type: object
+      required:
+        [id, customer_id, status, order_date, requested_delivery_date, is_late, totals, lines, shipments, invoices]
+      properties:
+        id:
+          type: string
+          example: SO-24001
+        customer_id:
+          type: string
+          example: CUST-1001
+        status:
+          type: string
+          enum: [confirmed, in_production, ready_to_ship, partially_shipped, shipped, delivered, cancelled]
+        order_date:
+          type: string
+          format: date
+        requested_delivery_date:
+          type: string
+          format: date
+        is_late:
+          type: boolean
+          description: Past the requested delivery date and not yet shipped, delivered or cancelled.
+        totals:
+          $ref: "#/components/schemas/OrderTotals"
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderLine"
+        shipments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Shipment"
+        invoices:
+          type: array
+          description: Invoices for this order (usually zero or one).
+          items:
+            $ref: "#/components/schemas/Invoice"
+
+    OrderTotals:
+      type: object
+      required: [quantity_tonnes, amount_excl_vat]
+      properties:
+        quantity_tonnes:
+          type: number
+          format: double
+        amount_excl_vat:
+          type: number
+          format: double
+
+    OrderLine:
+      type: object
+      required: [line_no, product_id, product_name, quantity_tonnes, unit_price, line_total]
+      properties:
+        line_no:
+          type: integer
+          format: int32
+        product_id:
+          type: string
+          example: PRD-2001
+        product_name:
+          type: string
+          nullable: true
+        quantity_tonnes:
+          type: number
+          format: double
+        unit_price:
+          type: number
+          format: double
+          description: EUR per tonne.
+        line_total:
+          type: number
+          format: double
+          nullable: true
+
+    CustomerOrders:
+      type: object
+      required: [customer_id, orders]
+      properties:
+        customer_id:
+          type: string
+          example: CUST-1001
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderSummary"
+
+    OrderSummary:
+      type: object
+      required: [id, status, order_date, requested_delivery_date, is_late, quantity_tonnes, amount_excl_vat]
+      properties:
+        id:
+          type: string
+          example: SO-24001
+        status:
+          type: string
+          enum: [confirmed, in_production, ready_to_ship, partially_shipped, shipped, delivered, cancelled]
+        order_date:
+          type: string
+          format: date
+        requested_delivery_date:
+          type: string
+          format: date
+        is_late:
+          type: boolean
+        quantity_tonnes:
+          type: number
+          format: double
+        amount_excl_vat:
+          type: number
+          format: double
+
+    ProductStock:
+      type: object
+      required: [product_id, name, active, total_quantity_tonnes, stock_status, warehouses]
+      properties:
+        product_id:
+          type: string
+          example: PRD-2001
+        name:
+          type: string
+        active:
+          type: boolean
+        total_quantity_tonnes:
+          type: number
+          format: double
+        stock_status:
+          type: string
+          description: Overall status, from total quantity vs. total reorder level across warehouses.
+          enum: [in_stock, low, out_of_stock]
+        warehouses:
+          type: array
+          items:
+            $ref: "#/components/schemas/WarehouseStock"
+
+    WarehouseStock:
+      type: object
+      required: [warehouse_id, warehouse_name, quantity_tonnes, reorder_level_tonnes, stock_status]
+      properties:
+        warehouse_id:
+          type: string
+        warehouse_name:
+          type: string
+          nullable: true
+        quantity_tonnes:
+          type: number
+          format: double
+        reorder_level_tonnes:
+          type: number
+          format: double
+        stock_status:
+          type: string
+          enum: [in_stock, low, out_of_stock]
+
+    Shipment:
+      type: object
+      required: [id, order_id, status, carrier, quantity_tonnes, planned_date, actual_date, delay_reason]
+      properties:
+        id:
+          type: string
+          example: SHP-30001
+        order_id:
+          type: string
+          example: SO-24001
+        status:
+          type: string
+          enum: [planned, loaded, in_transit, delivered, delayed]
+        carrier:
+          type: string
+        quantity_tonnes:
+          type: number
+          format: double
+        planned_date:
+          type: string
+          format: date
+        actual_date:
+          type: string
+          format: date
+          nullable: true
+        delay_reason:
+          type: string
+          nullable: true
+
+    Invoice:
+      type: object
+      required:
+        [id, order_id, customer_id, status, amount_excl_vat, vat_rate, amount_incl_vat, invoice_date, due_date, paid_date, days_overdue]
+      properties:
+        id:
+          type: string
+          example: INV-50001
+        order_id:
+          type: string
+        customer_id:
+          type: string
+        status:
+          type: string
+          description: Derived at read time. An unpaid invoice past its due date is "overdue".
+          enum: [open, paid, overdue]
+        amount_excl_vat:
+          type: number
+          format: double
+        vat_rate:
+          type: number
+          format: double
+          description: VAT percentage, e.g. 9 for 9%.
+        amount_incl_vat:
+          type: number
+          format: double
+        invoice_date:
+          type: string
+          format: date
+        due_date:
+          type: string
+          format: date
+        paid_date:
+          type: string
+          format: date
+          nullable: true
+        days_overdue:
+          type: integer
+          format: int32
+          description: Days past the due date when overdue, otherwise 0.

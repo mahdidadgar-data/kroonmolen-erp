@@ -102,12 +102,8 @@ export type InventoryRow = Awaited<ReturnType<typeof fetchInventory>>[number];
 export type CustomerRow = Awaited<ReturnType<typeof fetchCustomers>>[number];
 export type ProductRow = Awaited<ReturnType<typeof fetchProducts>>[number];
 
-export function orderTotals(lines: { quantity_tonnes: number; line_total: number | null }[]) {
-  return lines.reduce(
-    (acc, l) => ({ tonnes: acc.tonnes + Number(l.quantity_tonnes), amount: acc.amount + Number(l.line_total ?? 0) }),
-    { tonnes: 0, amount: 0 },
-  );
-}
+// Moved to erp-rules so server code (the /api/v1 routes) can use it without the browser client.
+export { orderTotals } from "@/lib/erp-rules";
 
 export const myRoleQuery = queryOptions({
   queryKey: ["my-role"],

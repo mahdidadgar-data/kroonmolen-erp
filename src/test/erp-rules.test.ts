@@ -4,6 +4,7 @@ import {
   isOrderLate,
   isOrderOpen,
   isShippingToday,
+  orderTotals,
   stockStatus,
   weekStart,
 } from "@/lib/erp-rules";
@@ -54,5 +55,19 @@ describe("weeks", () => {
   it("weeks start on Monday", () => {
     expect(weekStart("2026-11-17")).toBe("2026-11-16");
     expect(weekStart("2026-11-22")).toBe("2026-11-16");
+  });
+});
+
+describe("order totals", () => {
+  it("sums tonnes and line totals, treating a missing line total as 0", () => {
+    expect(
+      orderTotals([
+        { quantity_tonnes: 10, line_total: 3000 },
+        { quantity_tonnes: 2.5, line_total: null },
+      ]),
+    ).toEqual({ tonnes: 12.5, amount: 3000 });
+  });
+  it("an order without lines totals zero", () => {
+    expect(orderTotals([])).toEqual({ tonnes: 0, amount: 0 });
   });
 });

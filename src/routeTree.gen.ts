@@ -22,6 +22,12 @@ import { Route as AuthenticatedCustomersIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedCustomersCustomerIdRouteImport } from './routes/_authenticated/customers.$customerId'
 import { Route as AuthenticatedOrdersIndexRouteImport } from './routes/_authenticated/orders.index'
 import { Route as AuthenticatedOrdersOrderIdRouteImport } from './routes/_authenticated/orders.$orderId'
+import { Route as ApiV1SplatRouteImport } from './routes/api/v1/$'
+import { Route as ApiV1InvoicesInvoiceIdRouteImport } from './routes/api/v1/invoices.$invoiceId'
+import { Route as ApiV1OrdersOrderIdRouteImport } from './routes/api/v1/orders.$orderId'
+import { Route as ApiV1ShipmentsShipmentIdRouteImport } from './routes/api/v1/shipments.$shipmentId'
+import { Route as ApiV1CustomersCustomerIdOrdersRouteImport } from './routes/api/v1/customers.$customerId.orders'
+import { Route as ApiV1ProductsProductIdStockRouteImport } from './routes/api/v1/products.$productId.stock'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -91,6 +97,39 @@ const AuthenticatedOrdersOrderIdRoute =
     path: '/orders/$orderId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiV1SplatRoute = ApiV1SplatRouteImport.update({
+  id: '/api/v1/$',
+  path: '/api/v1/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1InvoicesInvoiceIdRoute = ApiV1InvoicesInvoiceIdRouteImport.update({
+  id: '/api/v1/invoices/$invoiceId',
+  path: '/api/v1/invoices/$invoiceId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1OrdersOrderIdRoute = ApiV1OrdersOrderIdRouteImport.update({
+  id: '/api/v1/orders/$orderId',
+  path: '/api/v1/orders/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiV1ShipmentsShipmentIdRoute =
+  ApiV1ShipmentsShipmentIdRouteImport.update({
+    id: '/api/v1/shipments/$shipmentId',
+    path: '/api/v1/shipments/$shipmentId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiV1CustomersCustomerIdOrdersRoute =
+  ApiV1CustomersCustomerIdOrdersRouteImport.update({
+    id: '/api/v1/customers/$customerId/orders',
+    path: '/api/v1/customers/$customerId/orders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiV1ProductsProductIdStockRoute =
+  ApiV1ProductsProductIdStockRouteImport.update({
+    id: '/api/v1/products/$productId/stock',
+    path: '/api/v1/products/$productId/stock',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -103,8 +142,14 @@ export interface FileRoutesByFullPath {
   '/shipments': typeof AuthenticatedShipmentsRoute
   '/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/orders/$orderId': typeof AuthenticatedOrdersOrderIdRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/customers/': typeof AuthenticatedCustomersIndexRoute
   '/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/api/v1/invoices/$invoiceId': typeof ApiV1InvoicesInvoiceIdRoute
+  '/api/v1/orders/$orderId': typeof ApiV1OrdersOrderIdRoute
+  '/api/v1/shipments/$shipmentId': typeof ApiV1ShipmentsShipmentIdRoute
+  '/api/v1/customers/$customerId/orders': typeof ApiV1CustomersCustomerIdOrdersRoute
+  '/api/v1/products/$productId/stock': typeof ApiV1ProductsProductIdStockRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -117,8 +162,14 @@ export interface FileRoutesByTo {
   '/shipments': typeof AuthenticatedShipmentsRoute
   '/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/orders/$orderId': typeof AuthenticatedOrdersOrderIdRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/customers': typeof AuthenticatedCustomersIndexRoute
   '/orders': typeof AuthenticatedOrdersIndexRoute
+  '/api/v1/invoices/$invoiceId': typeof ApiV1InvoicesInvoiceIdRoute
+  '/api/v1/orders/$orderId': typeof ApiV1OrdersOrderIdRoute
+  '/api/v1/shipments/$shipmentId': typeof ApiV1ShipmentsShipmentIdRoute
+  '/api/v1/customers/$customerId/orders': typeof ApiV1CustomersCustomerIdOrdersRoute
+  '/api/v1/products/$productId/stock': typeof ApiV1ProductsProductIdStockRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -133,8 +184,14 @@ export interface FileRoutesById {
   '/_authenticated/shipments': typeof AuthenticatedShipmentsRoute
   '/_authenticated/customers/$customerId': typeof AuthenticatedCustomersCustomerIdRoute
   '/_authenticated/orders/$orderId': typeof AuthenticatedOrdersOrderIdRoute
+  '/api/v1/$': typeof ApiV1SplatRoute
   '/_authenticated/customers/': typeof AuthenticatedCustomersIndexRoute
   '/_authenticated/orders/': typeof AuthenticatedOrdersIndexRoute
+  '/api/v1/invoices/$invoiceId': typeof ApiV1InvoicesInvoiceIdRoute
+  '/api/v1/orders/$orderId': typeof ApiV1OrdersOrderIdRoute
+  '/api/v1/shipments/$shipmentId': typeof ApiV1ShipmentsShipmentIdRoute
+  '/api/v1/customers/$customerId/orders': typeof ApiV1CustomersCustomerIdOrdersRoute
+  '/api/v1/products/$productId/stock': typeof ApiV1ProductsProductIdStockRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -149,8 +206,14 @@ export interface FileRouteTypes {
     | '/shipments'
     | '/customers/$customerId'
     | '/orders/$orderId'
+    | '/api/v1/$'
     | '/customers/'
     | '/orders/'
+    | '/api/v1/invoices/$invoiceId'
+    | '/api/v1/orders/$orderId'
+    | '/api/v1/shipments/$shipmentId'
+    | '/api/v1/customers/$customerId/orders'
+    | '/api/v1/products/$productId/stock'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -163,8 +226,14 @@ export interface FileRouteTypes {
     | '/shipments'
     | '/customers/$customerId'
     | '/orders/$orderId'
+    | '/api/v1/$'
     | '/customers'
     | '/orders'
+    | '/api/v1/invoices/$invoiceId'
+    | '/api/v1/orders/$orderId'
+    | '/api/v1/shipments/$shipmentId'
+    | '/api/v1/customers/$customerId/orders'
+    | '/api/v1/products/$productId/stock'
   id:
     | '__root__'
     | '/'
@@ -178,14 +247,26 @@ export interface FileRouteTypes {
     | '/_authenticated/shipments'
     | '/_authenticated/customers/$customerId'
     | '/_authenticated/orders/$orderId'
+    | '/api/v1/$'
     | '/_authenticated/customers/'
     | '/_authenticated/orders/'
+    | '/api/v1/invoices/$invoiceId'
+    | '/api/v1/orders/$orderId'
+    | '/api/v1/shipments/$shipmentId'
+    | '/api/v1/customers/$customerId/orders'
+    | '/api/v1/products/$productId/stock'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ApiV1SplatRoute: typeof ApiV1SplatRoute
+  ApiV1InvoicesInvoiceIdRoute: typeof ApiV1InvoicesInvoiceIdRoute
+  ApiV1OrdersOrderIdRoute: typeof ApiV1OrdersOrderIdRoute
+  ApiV1ShipmentsShipmentIdRoute: typeof ApiV1ShipmentsShipmentIdRoute
+  ApiV1CustomersCustomerIdOrdersRoute: typeof ApiV1CustomersCustomerIdOrdersRoute
+  ApiV1ProductsProductIdStockRoute: typeof ApiV1ProductsProductIdStockRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -281,6 +362,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrdersOrderIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/v1/$': {
+      id: '/api/v1/$'
+      path: '/api/v1/$'
+      fullPath: '/api/v1/$'
+      preLoaderRoute: typeof ApiV1SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/invoices/$invoiceId': {
+      id: '/api/v1/invoices/$invoiceId'
+      path: '/api/v1/invoices/$invoiceId'
+      fullPath: '/api/v1/invoices/$invoiceId'
+      preLoaderRoute: typeof ApiV1InvoicesInvoiceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/orders/$orderId': {
+      id: '/api/v1/orders/$orderId'
+      path: '/api/v1/orders/$orderId'
+      fullPath: '/api/v1/orders/$orderId'
+      preLoaderRoute: typeof ApiV1OrdersOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/shipments/$shipmentId': {
+      id: '/api/v1/shipments/$shipmentId'
+      path: '/api/v1/shipments/$shipmentId'
+      fullPath: '/api/v1/shipments/$shipmentId'
+      preLoaderRoute: typeof ApiV1ShipmentsShipmentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/customers/$customerId/orders': {
+      id: '/api/v1/customers/$customerId/orders'
+      path: '/api/v1/customers/$customerId/orders'
+      fullPath: '/api/v1/customers/$customerId/orders'
+      preLoaderRoute: typeof ApiV1CustomersCustomerIdOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/v1/products/$productId/stock': {
+      id: '/api/v1/products/$productId/stock'
+      path: '/api/v1/products/$productId/stock'
+      fullPath: '/api/v1/products/$productId/stock'
+      preLoaderRoute: typeof ApiV1ProductsProductIdStockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -317,6 +440,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ApiV1SplatRoute: ApiV1SplatRoute,
+  ApiV1InvoicesInvoiceIdRoute: ApiV1InvoicesInvoiceIdRoute,
+  ApiV1OrdersOrderIdRoute: ApiV1OrdersOrderIdRoute,
+  ApiV1ShipmentsShipmentIdRoute: ApiV1ShipmentsShipmentIdRoute,
+  ApiV1CustomersCustomerIdOrdersRoute: ApiV1CustomersCustomerIdOrdersRoute,
+  ApiV1ProductsProductIdStockRoute: ApiV1ProductsProductIdStockRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
