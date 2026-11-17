@@ -28,3 +28,14 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- Back-office pages live under `src/routes/_authenticated/` (client-only gate, redirects to `/auth`); `/` only redirects to `/dashboard`. Why: the whole app is staff-only.
+- Data is read with the browser client through `queryOptions` in `src/lib/queries.ts`, primed in route loaders and read with `useSuspenseQuery`. Why: RLS lets any signed-in staff member read; no server functions are needed.
+- Business rules (overdue, late, shipping today, stock status) live as pure functions in `src/lib/erp-rules.ts` with tests in `src/test/erp-rules.test.ts`. Why: one definition shared by dashboard and lists.
+- Invoice "overdue" is derived from the due date at read time, not stored by a job. Why: avoids scheduled work and stays correct as days pass.
+- Order/shipment/invoice status changes are logged to `order_activity` by database triggers. Why: the log stays complete whatever client makes the change.
+- List pages keep search, sort and filters in the URL via `listSearch()` and render with the shared `DataTable`. Why: shareable, linkable filtered views (dashboard links into them).
+- Status labels and badge colours come from `src/lib/status.ts` and badge variants in `src/components/ui/badge.tsx`. Why: consistent colours across modules.
+- Records use human-readable text primary keys (CUST-, PRD-, SO-, SHP-, INV-). Why: stable IDs for a future API.

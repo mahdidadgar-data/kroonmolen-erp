@@ -46,8 +46,9 @@ const columns: Column<ShipmentRow>[] = [
   {
     key: "reason",
     header: "Delay reason",
-    cell: (r) => <span className="block max-w-72 truncate text-muted-foreground" title={r.delay_reason ?? ""}>{r.delay_reason ?? "—"}</span>,
+    cell: (r) => <span className="text-xs text-muted-foreground">{r.delay_reason ?? "—"}</span>,
     sortValue: (r) => r.delay_reason,
+    className: "min-w-48 whitespace-normal",
   },
 ];
 

@@ -14,7 +14,8 @@ export function listSearch<K extends string>(...filterKeys: K[]) {
       if (typeof v === "string" && v !== "") out[key] = v;
       else if (typeof v === "number") out[key] = String(v);
     }
-    if (raw.dir === "asc" || raw.dir === "desc") out.dir = raw.dir;
+    const dir = raw["dir"];
+    if (dir === "asc" || dir === "desc") out["dir"] = dir;
     return out as ListSearch<K>;
   };
 }

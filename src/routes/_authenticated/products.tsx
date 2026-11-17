@@ -52,7 +52,7 @@ function ProductsPage() {
 
   const rows: Row[] = products.map((p) => {
     const inv = inventory.filter((i) => i.product_sku === p.sku);
-    const worst = inv.reduce((w, i) => (RANK[i.stock_status ?? "in_stock"] < RANK[w] ? (i.stock_status ?? w) : w), "in_stock");
+    const worst = inv.reduce((w, i) => ((RANK[i.stock_status ?? "in_stock"] ?? 2) < (RANK[w] ?? 2) ? (i.stock_status ?? w) : w), "in_stock");
     return { ...p, stock: inv.reduce((s, i) => s + Number(i.quantity_tonnes), 0), worst };
   });
 
