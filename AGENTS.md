@@ -32,7 +32,7 @@ use the editor.
 ## Project rules
 
 - Back-office pages live under `src/routes/_authenticated/` (client-only gate, redirects to `/auth`); `/` only redirects to `/dashboard`. Why: the whole app is staff-only.
-- Data is read with the browser client through `queryOptions` in `src/lib/queries.ts`, primed in route loaders and read with `useSuspenseQuery`. Why: RLS lets any signed-in staff member read; no server functions are needed.
+- Data is read with the browser client through `queryOptions` in `src/lib/queries.ts`, primed in route loaders and read with `useSuspenseQuery`. Why: RLS allows reads only for the viewer or admin role (pending users see nothing), so the browser client is safe and no server functions are needed.
 - Business rules (overdue, late, shipping today, stock status) live as pure functions in `src/lib/erp-rules.ts` with tests in `src/test/erp-rules.test.ts`. Why: one definition shared by dashboard and lists.
 - Invoice "overdue" is derived from the due date at read time, not stored by a job. Why: avoids scheduled work and stays correct as days pass.
 - Order/shipment/invoice status changes are logged to `order_activity` by database triggers. Why: the log stays complete whatever client makes the change.
