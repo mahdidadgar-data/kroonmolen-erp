@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "kroonmolen-erp": {
+      "type": "stdio",
+      "command": "bun",
+      "args": ["mcp-server/src/index.ts"],
+      "env": {
+        "ERP_API_BASE_URL": "${ERP_API_BASE_URL:-}",
+        "ERP_API_KEY": "${ERP_API_KEY:-}"
+      }
+    }
+  }
+}

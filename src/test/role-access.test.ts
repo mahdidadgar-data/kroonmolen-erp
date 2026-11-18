@@ -1,5 +1,5 @@
 // Live database regression checks: run with the project's Lovable Cloud connection.
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { describe, expect, it } from "vitest";
 
 type ResultRow = {
@@ -25,7 +25,12 @@ function query(sql: string): ResultRow[] {
   return JSON.parse(result).rows;
 }
 
-describe("Database role access", () => {
+// These checks query the live database through the Lovable CLI. Where it is not
+// installed (CI, fresh clones) skip them instead of failing on a missing binary.
+// Probed the same way query() calls it, so "available" means query() can run.
+const hasLovableCli = !spawnSync("lovable", ["--version"], { stdio: "ignore" }).error;
+
+describe.skipIf(!hasLovableCli)("Database role access", () => {
   it("checks only auth.uid() and cannot accept another user's ID", () => {
     const [row] = query(`SELECT
       to_regprocedure('public.has_role(uuid,public.app_role)') IS NULL AS old_role_removed,

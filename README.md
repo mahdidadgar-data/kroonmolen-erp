@@ -70,3 +70,7 @@ To rotate the key, set a new value and update the consumers at the same time; th
 - Recommended next step: replace the service-role client with a **dedicated read-only database role** that can `SELECT` only the tables and columns the API exposes, so a bug in the API cannot read or change anything else.
 - There is **no rate limiting yet**. A leaked key allows unlimited reads until it is rotated; add rate limiting (per key / per IP) before exposing the API more widely.
 - One shared key for all consumers: there is no per-client identity or audit trail of API calls yet.
+
+## MCP server (Claude)
+
+[`mcp-server/`](mcp-server/) is a standalone, read-only MCP server that lets Claude query the ERP through the API above. It has five tools: `get_order`, `list_customer_orders`, `get_product_stock`, `get_shipment` and `get_invoice`. It only calls the live API and has no database access. The repo-root [`.mcp.json`](.mcp.json) registers it for Claude Code and reads `ERP_API_BASE_URL` and `ERP_API_KEY` from your environment, so no secret is committed. Setup (including Windows), the MCP Inspector, the live smoke test and the security notes are in [`mcp-server/README.md`](mcp-server/README.md).
